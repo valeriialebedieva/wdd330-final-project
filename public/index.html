@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Finder - Discover Delicious Recipes</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-utensils"></i>
+                    <h1>Recipe Finder</h1>
+                </div>
+                <nav class="nav">
+                    <a href="#home" class="nav-link active">Home</a>
+                    <a href="#recipes" class="nav-link">Recipes</a>
+                    <a href="#about" class="nav-link">About</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <section class="hero" id="home">
+            <div class="container">
+                <div class="hero-content">
+                    <h2 class="hero-title">Discover Amazing Recipes</h2>
+                    <p class="hero-subtitle">Find the perfect recipe for any occasion, from quick weeknight dinners to impressive weekend feasts.</p>
+                    
+                    <div class="search-section">
+                        <div class="search-container">
+                            <div class="search-box">
+                                <i class="fas fa-search search-icon"></i>
+                                <input type="text" id="searchInput" placeholder="Search recipes or ingredients..." class="search-input">
+                                <button id="searchBtn" class="search-btn">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="filters">
+                            <select id="cuisineFilter" class="filter-select">
+                                <option value="All">All Cuisines</option>
+                            </select>
+                            <select id="difficultyFilter" class="filter-select">
+                                <option value="All">All Difficulties</option>
+                                <option value="Easy">Easy</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Hard">Hard</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Food Joke Section -->
+                        <div class="joke-section">
+                            <div class="joke-container">
+                                <i class="fas fa-laugh-squint joke-icon"></i>
+                                <div class="joke-content">
+                                    <p id="jokeText" class="joke-text">Click the button below for a food joke!</p>
+                                    <button id="jokeBtn" class="joke-btn">
+                                        <i class="fas fa-dice"></i> Get Food Joke
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="recipes-section" id="recipes">
+            <div class="container">
+                <div class="section-header">
+                    <h3 class="section-title">Featured Recipes</h3>
+                    <p class="section-subtitle">Explore our collection of delicious recipes</p>
+                </div>
+                
+                <div id="recipesGrid" class="recipes-grid">
+                    <!-- Recipes will be loaded here -->
+                </div>
+                
+                <div id="loadMoreContainer" class="load-more-container" style="display: none;">
+                    <button id="loadMoreBtn" class="load-more-btn">
+                        <i class="fas fa-plus"></i> Load More Recipes
+                    </button>
+                </div>
+                
+                <div id="loadingSpinner" class="loading-spinner" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Loading recipes...</p>
+                </div>
+                
+                <div id="noResults" class="no-results" style="display: none;">
+                    <i class="fas fa-search"></i>
+                    <h4>No recipes found</h4>
+                    <p>Try adjusting your search terms or filters</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="about-section" id="about">
+            <div class="container">
+                <div class="about-content">
+                    <h3 class="section-title">About Recipe Finder</h3>
+                    <p>Recipe Finder is your go-to destination for discovering delicious recipes from around the world. Whether you're a seasoned chef or just starting your culinary journey, we have recipes for every skill level and taste preference.</p>
+                    
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <i class="fas fa-search"></i>
+                            <h4>Easy Search</h4>
+                            <p>Find recipes by name, ingredients, or cuisine type</p>
+                        </div>
+                        <div class="feature-card">
+                            <i class="fas fa-filter"></i>
+                            <h4>Smart Filters</h4>
+                            <p>Filter by difficulty level and cooking time</p>
+                        </div>
+                        <div class="feature-card">
+                            <i class="fas fa-clock"></i>
+                            <h4>Quick & Easy</h4>
+                            <p>Perfect recipes for busy weeknights</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Recipe Modal -->
+    <div id="recipeModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="modalContent">
+                <!-- Recipe details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Recipe Finder. Made with ❤️ for food lovers everywhere.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html> 
