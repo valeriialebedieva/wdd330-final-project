@@ -21,7 +21,7 @@ let currentOffset = 0;
 let hasMoreRecipes = false;
 
 // API Configuration
-const SPOONACULAR_API_KEY = '92f31e520e1c4c878d28ffeb7ce252a8'; // Your API key
+const SPOONACULAR_API_KEY = process.env.SPOONACULAR_API_KEY
 const SPOONACULAR_BASE_URL = 'https://api.spoonacular.com';
 const JOKE_API_URL = 'https://v2.jokeapi.dev/joke/Any?safe-mode';
 
