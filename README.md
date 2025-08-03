@@ -28,14 +28,16 @@ A modern, responsive web application for discovering and exploring delicious rec
 
 ## 🛠️ Technology Stack
 
-- **Backend**: Node.js, Express.js
 - **Frontend**: HTML5, CSS3, Vanilla JavaScript
-- **APIs**: Spoonacular Recipe API, JokeAPI
+- **APIs**: Spoonacular Recipe API, JokeAPI (Direct browser calls)
 - **Styling**: Custom CSS with modern design principles
 - **Icons**: Font Awesome
 - **Fonts**: Google Fonts (Inter)
+- **Deployment**: Netlify (Static hosting)
 
 ## 📦 Installation
+
+### For Local Development:
 
 1. **Clone the repository**
    ```bash
@@ -48,28 +50,24 @@ A modern, responsive web application for discovering and exploring delicious rec
    npm install
    ```
 
-3. **Set up API keys (Optional but recommended)**
-   ```bash
-   # Copy the example environment file
-   cp env.example .env
-   
-   # Edit the .env file with your API keys
-   nano .env  # or use your preferred editor
-   ```
-   
-   **Get a free Spoonacular API key:**
-   - Visit [Spoonacular Food API](https://spoonacular.com/food-api)
-   - Sign up for a free account
-   - Copy your API key
-   - Replace `your_spoonacular_api_key_here` in the `.env` file
-
-4. **Start the development server**
+3. **Start the development server**
    ```bash
    npm run dev
    ```
 
-5. **Open your browser**
+4. **Open your browser**
    Navigate to `http://localhost:3000`
+
+### For Netlify Deployment:
+
+1. **Fork or clone the repository**
+2. **Connect to Netlify** from your GitHub repository
+3. **Build settings:**
+   - Build command: `echo 'Static site - no build required'`
+   - Publish directory: `public`
+4. **Deploy!** The app will work immediately
+
+**Note:** The app now makes direct API calls to Spoonacular from the browser, so no server-side configuration is needed.
 
 ## 🎨 Project Structure
 
