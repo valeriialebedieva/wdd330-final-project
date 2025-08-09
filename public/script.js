@@ -20,10 +20,9 @@ let allRecipes = [];
 let currentOffset = 0;
 let hasMoreRecipes = false;
 
-// API Configuration
-const SPOONACULAR_API_KEY = '92f31e520e1c4c878d28ffeb7ce252a8'; 
-const SPOONACULAR_BASE_URL = 'https://api.spoonacular.com';
-const JOKE_API_URL = 'https://v2.jokeapi.dev/joke/Any?safe-mode';
+// API Configuration - Using backend endpoints instead of direct API calls
+const API_BASE_URL = '/api';
+const JOKE_API_URL = `${API_BASE_URL}/joke`;
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
@@ -99,17 +98,17 @@ async function loadRecipes() {
     showLoading(true);
     currentOffset = 0;
     try {
-        const response = await fetch(`${SPOONACULAR_BASE_URL}/recipes/complexSearch?apiKey=${SPOONACULAR_API_KEY}&number=12&addRecipeInformation=true&fillIngredients=true&offset=${currentOffset}`);
+        const response = await fetch(`${API_BASE_URL}/recipes?offset=${currentOffset}`);
         const data = await response.json();
         
         if (data.error) {
             throw new Error(data.error);
         }
         
-        const recipes = transformSpoonacularRecipes(data.results);
+        const recipes = data.recipes;
         allRecipes = recipes;
         currentRecipes = [...allRecipes];
-        hasMoreRecipes = data.results.length === 12;
+        hasMoreRecipes = data.pagination.hasMore;
         
         displayRecipes(currentRecipes);
         updateLoadMoreButton();
@@ -123,8 +122,8 @@ async function loadRecipes() {
 
 async function loadCuisines() {
     try {
-        // Use a predefined list of cuisines since the API endpoint doesn't work
-        const cuisines = ['Italian', 'Asian', 'American', 'Mexican', 'Mediterranean', 'Indian', 'French', 'Japanese', 'Thai', 'Greek'];
+        const response = await fetch(`${API_BASE_URL}/cuisines`);
+        const cuisines = await response.json();
         
         cuisines.forEach(cuisine => {
             const option = document.createElement('option');
@@ -134,50 +133,34 @@ async function loadCuisines() {
         });
     } catch (error) {
         console.error('Error loading cuisines:', error);
+        // Fallback cuisines
+        const fallbackCuisines = ['Italian', 'Asian', 'American', 'Mexican', 'Mediterranean', 'Indian', 'French', 'Japanese', 'Thai', 'Greek'];
+        fallbackCuisines.forEach(cuisine => {
+            const option = document.createElement('option');
+            option.value = cuisine;
+            option.textContent = cuisine;
+            cuisineFilter.appendChild(option);
+        });
     }
 }
 
 async function loadRecipeDetails(recipeId) {
     try {
-        const response = await fetch(`${SPOONACULAR_BASE_URL}/recipes/${recipeId}/information?apiKey=${SPOONACULAR_API_KEY}`);
+        const response = await fetch(`${API_BASE_URL}/recipes/${recipeId}`);
         const recipe = await response.json();
-        return transformSpoonacularRecipe(recipe);
+        
+        if (recipe.error) {
+            throw new Error(recipe.error);
+        }
+        
+        return recipe;
     } catch (error) {
         console.error('Error loading recipe details:', error);
         return null;
     }
 }
 
-// Transform Spoonacular data to our format
-function transformSpoonacularRecipes(recipes) {
-    return recipes.map(recipe => ({
-        id: recipe.id,
-        name: recipe.title,
-        ingredients: recipe.extendedIngredients?.map(ing => ing.name) || [],
-        instructions: recipe.instructions || 'Instructions not available',
-        prepTime: recipe.preparationMinutes || 15,
-        cookTime: recipe.cookingMinutes || 20,
-        servings: recipe.servings || 4,
-        difficulty: recipe.dishTypes?.length > 0 ? 'Medium' : 'Easy',
-        cuisine: recipe.cuisines?.length > 0 ? recipe.cuisines[0] : 'International',
-        image: recipe.image || 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=400'
-    }));
-}
-
-function transformSpoonacularRecipe(recipe) {
-    return {
-        id: recipe.id,
-        name: recipe.title,
-        ingredients: recipe.extendedIngredients?.map(ing => ing.name) || [],
-        instructions: recipe.instructions || 'Instructions not available',
-        prepTime: recipe.preparationMinutes || 15,
-        cookTime: recipe.cookingMinutes || 20,
-        servings: recipe.servings || 4,
-        difficulty: recipe.dishTypes?.length > 0 ? 'Medium' : 'Easy',
-        cuisine: recipe.cuisines?.length > 0 ? recipe.cuisines[0] : 'International',
-        image: recipe.image || 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=400'
-    };
-}
+// Data transformation is now handled by the backend API
 
 // Joke Functions
 async function getRandomJoke() {
@@ -227,36 +210,25 @@ async function loadMoreRecipes() {
     
     // Build query parameters
     const params = new URLSearchParams();
-    params.append('apiKey', SPOONACULAR_API_KEY);
-    params.append('number', '12');
-    params.append('addRecipeInformation', 'true');
-    params.append('fillIngredients', 'true');
     params.append('offset', currentOffset);
     
-    if (searchTerm) params.append('query', searchTerm);
+    if (searchTerm) params.append('search', searchTerm);
     if (selectedCuisine !== 'All') params.append('cuisine', selectedCuisine);
+    if (selectedDifficulty !== 'All') params.append('difficulty', selectedDifficulty);
     
     try {
-        const response = await fetch(`${SPOONACULAR_BASE_URL}/recipes/complexSearch?${params}`);
+        const response = await fetch(`${API_BASE_URL}/recipes?${params}`);
         const data = await response.json();
         
         if (data.error) {
             throw new Error(data.error);
         }
         
-        const newRecipes = transformSpoonacularRecipes(data.results);
-        hasMoreRecipes = data.results.length === 12;
-        
-        // Filter by difficulty on client side
-        let filteredRecipes = newRecipes;
-        if (selectedDifficulty !== 'All') {
-            filteredRecipes = newRecipes.filter(recipe => 
-                recipe.difficulty.toLowerCase() === selectedDifficulty.toLowerCase()
-            );
-        }
+        const newRecipes = data.recipes;
+        hasMoreRecipes = data.pagination.hasMore;
         
         // Append new recipes to existing ones
-        currentRecipes = [...currentRecipes, ...filteredRecipes];
+        currentRecipes = [...currentRecipes, ...newRecipes];
         displayRecipes(currentRecipes);
         updateLoadMoreButton();
         
@@ -289,37 +261,26 @@ async function performSearch() {
     
     // Build query parameters
     const params = new URLSearchParams();
-    params.append('apiKey', SPOONACULAR_API_KEY);
-    params.append('number', '12');
-    params.append('addRecipeInformation', 'true');
-    params.append('fillIngredients', 'true');
     params.append('offset', currentOffset);
     
-    if (searchTerm) params.append('query', searchTerm);
+    if (searchTerm) params.append('search', searchTerm);
     if (selectedCuisine !== 'All') params.append('cuisine', selectedCuisine);
+    if (selectedDifficulty !== 'All') params.append('difficulty', selectedDifficulty);
 
     showLoading(true);
     try {
-        const response = await fetch(`${SPOONACULAR_BASE_URL}/recipes/complexSearch?${params}`);
+        const response = await fetch(`${API_BASE_URL}/recipes?${params}`);
         const data = await response.json();
         
         if (data.error) {
             throw new Error(data.error);
         }
         
-        const recipes = transformSpoonacularRecipes(data.results);
-        hasMoreRecipes = data.results.length === 12;
+        const recipes = data.recipes;
+        hasMoreRecipes = data.pagination.hasMore;
         
-        // Filter by difficulty on client side
-        let filteredRecipes = recipes;
-        if (selectedDifficulty !== 'All') {
-            filteredRecipes = recipes.filter(recipe => 
-                recipe.difficulty.toLowerCase() === selectedDifficulty.toLowerCase()
-            );
-        }
-        
-        currentRecipes = filteredRecipes;
-        displayRecipes(filteredRecipes);
+        currentRecipes = recipes;
+        displayRecipes(recipes);
         updateLoadMoreButton();
         
         // Get a random joke when searching (but not on every keystroke)
