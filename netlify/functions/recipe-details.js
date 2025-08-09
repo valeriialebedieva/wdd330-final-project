@@ -31,6 +31,23 @@ exports.handler = async (event, context) => {
         });
 
         const recipe = response.data;
+        
+        // Use the same difficulty logic as the recipes function
+        let difficulty = 'Medium'; // Default
+        
+        // If we have dishTypes, use them to determine difficulty
+        if (recipe.dishTypes && recipe.dishTypes.length > 0) {
+            const dishType = recipe.dishTypes[0].toLowerCase();
+            // Some dish types indicate difficulty
+            if (dishType.includes('salad') || dishType.includes('soup') || dishType.includes('sandwich')) {
+                difficulty = 'Easy';
+            } else if (dishType.includes('cake') || dishType.includes('bread') || dishType.includes('pastry')) {
+                difficulty = 'Hard';
+            } else {
+                difficulty = 'Medium';
+            }
+        }
+        
         const transformedRecipe = {
             id: recipe.id,
             name: recipe.title,
@@ -39,7 +56,7 @@ exports.handler = async (event, context) => {
             prepTime: recipe.preparationMinutes || 15,
             cookTime: recipe.cookingMinutes || 20,
             servings: recipe.servings || 4,
-            difficulty: recipe.dishTypes?.length > 0 ? 'Medium' : 'Easy',
+            difficulty: difficulty,
             cuisine: recipe.cuisines?.length > 0 ? recipe.cuisines[0] : 'International',
             image: recipe.image || 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=400'
         };

@@ -5,6 +5,9 @@ const SPOONACULAR_API_KEY = process.env.SPOONACULAR_API_KEY;
 const SPOONACULAR_BASE_URL = 'https://api.spoonacular.com';
 const DEFAULT_RECIPE_COUNT = 12;
 
+// Debug: Log environment variable status (remove in production)
+console.log('SPOONACULAR_API_KEY loaded:', SPOONACULAR_API_KEY ? 'Yes' : 'No');
+
 exports.handler = async (event, context) => {
     // Enable CORS
     const headers = {
@@ -46,19 +49,43 @@ exports.handler = async (event, context) => {
             params
         });
 
+        // Debug: Log the first recipe to see available fields
+        if (response.data.results && response.data.results.length > 0) {
+            console.log('First recipe data:', JSON.stringify(response.data.results[0], null, 2));
+        }
+
         // Transform Spoonacular data to our format
-        const recipes = response.data.results.map(recipe => ({
-            id: recipe.id,
-            name: recipe.title,
-            ingredients: recipe.extendedIngredients?.map(ing => ing.name) || [],
-            instructions: recipe.instructions || 'Instructions not available',
-            prepTime: recipe.preparationMinutes || 15,
-            cookTime: recipe.cookingMinutes || 20,
-            servings: recipe.servings || 4,
-            difficulty: recipe.dishTypes?.length > 0 ? 'Medium' : 'Easy',
-            cuisine: recipe.cuisines?.length > 0 ? recipe.cuisines[0] : 'International',
-            image: recipe.image || 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=400'
-        }));
+        const recipes = response.data.results.map(recipe => {
+            // For now, use a simple approach - Spoonacular doesn't provide difficulty directly
+            // We'll use dishTypes as a proxy, but provide better fallback data
+            let difficulty = 'Medium'; // Default
+            
+            // If we have dishTypes, use them to determine difficulty
+            if (recipe.dishTypes && recipe.dishTypes.length > 0) {
+                const dishType = recipe.dishTypes[0].toLowerCase();
+                // Some dish types indicate difficulty
+                if (dishType.includes('salad') || dishType.includes('soup') || dishType.includes('sandwich')) {
+                    difficulty = 'Easy';
+                } else if (dishType.includes('cake') || dishType.includes('bread') || dishType.includes('pastry')) {
+                    difficulty = 'Hard';
+                } else {
+                    difficulty = 'Medium';
+                }
+            }
+            
+            return {
+                id: recipe.id,
+                name: recipe.title,
+                ingredients: recipe.extendedIngredients?.map(ing => ing.name) || [],
+                instructions: recipe.instructions || 'Instructions not available',
+                prepTime: recipe.preparationMinutes || 15,
+                cookTime: recipe.cookingMinutes || 20,
+                servings: recipe.servings || 4,
+                difficulty: difficulty,
+                cuisine: recipe.cuisines?.length > 0 ? recipe.cuisines[0] : 'International',
+                image: recipe.image || 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=400'
+            };
+        });
 
         // Filter by difficulty on our end since Spoonacular doesn't have this
         let filteredRecipes = recipes;
@@ -115,6 +142,30 @@ exports.handler = async (event, context) => {
                 difficulty: "Easy",
                 cuisine: "Asian",
                 image: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=400"
+            },
+            {
+                id: 3,
+                name: "Simple Toast",
+                ingredients: ["bread", "butter"],
+                instructions: "Toast bread and spread with butter",
+                prepTime: 2,
+                cookTime: 3,
+                servings: 1,
+                difficulty: "Easy",
+                cuisine: "International",
+                image: "https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=400"
+            },
+            {
+                id: 4,
+                name: "Beef Wellington",
+                ingredients: ["beef fillet", "puff pastry", "mushrooms", "shallots", "garlic", "prosciutto", "dijon mustard", "egg wash"],
+                instructions: "Prepare beef, wrap in mushroom mixture and prosciutto, encase in pastry, bake",
+                prepTime: 45,
+                cookTime: 35,
+                servings: 6,
+                difficulty: "Hard",
+                cuisine: "French",
+                image: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400"
             }
         ];
 
