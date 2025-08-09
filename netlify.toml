@@ -1,6 +1,27 @@
 [build]
   publish = "public"
-  command = "echo 'Static site - no build required'"
+  functions = "netlify/functions"
+  command = "echo 'Static site with Netlify Functions - no build required'"
+
+[[redirects]]
+  from = "/api/recipes"
+  to = "/.netlify/functions/recipes"
+  status = 200
+
+[[redirects]]
+  from = "/api/recipes/*"
+  to = "/.netlify/functions/recipe-details"
+  status = 200
+
+[[redirects]]
+  from = "/api/cuisines"
+  to = "/.netlify/functions/cuisines"
+  status = 200
+
+[[redirects]]
+  from = "/api/joke"
+  to = "/.netlify/functions/joke"
+  status = 200
 
 [[redirects]]
   from = "/*"

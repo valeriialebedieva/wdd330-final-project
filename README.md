@@ -1,48 +1,30 @@
 # Recipe Finder
 
-A modern, responsive web application for discovering and exploring delicious recipes from around the world. Built with Node.js, Express, and vanilla JavaScript.
+A modern recipe finder application with search and filtering capabilities, built with HTML, CSS, JavaScript, and Node.js.
 
-## 🌟 Features
+## Features
 
-- **Smart Search**: Search recipes by name or ingredients
-- **Advanced Filtering**: Filter by cuisine type and difficulty level
-- **Beautiful UI**: Modern, responsive design with smooth animations
-- **Recipe Details**: Detailed view with ingredients and instructions
-- **Mobile Friendly**: Fully responsive design for all devices
-- **Real-time Search**: Instant search results as you type
+- 🔍 **Recipe Search**: Search for recipes by name or ingredients
+- 🍽️ **Cuisine Filtering**: Filter recipes by cuisine type
+- ⭐ **Difficulty Filtering**: Filter by cooking difficulty level
+- 📱 **Responsive Design**: Works on desktop, tablet, and mobile
+- 😄 **Food Jokes**: Get random food-related jokes
+- 🔄 **Load More**: Pagination for browsing more recipes
+- 📋 **Recipe Details**: Detailed view with ingredients and instructions
 
-## 🎯 Target Audience
+## Technologies Used
 
-- Home cooks looking for new recipes
-- Food enthusiasts exploring different cuisines
-- Busy professionals seeking quick meal ideas
-- Cooking beginners wanting easy-to-follow recipes
+- **Frontend**: HTML5, CSS3, JavaScript (ES6+)
+- **Backend**: Node.js, Express.js
+- **APIs**: Spoonacular Food API, JokeAPI
+- **Deployment**: Netlify (Functions + Static Hosting)
 
-## 🚀 Major Functions
-
-1. **Recipe Search**: Find recipes by name or ingredients
-2. **Cuisine Filtering**: Filter by Italian, Asian, American, Mexican, etc.
-3. **Difficulty Filtering**: Filter by Easy, Medium, or Hard recipes
-4. **Recipe Details**: View complete recipe information in a modal
-5. **Responsive Design**: Works perfectly on desktop, tablet, and mobile
-
-## 🛠️ Technology Stack
-
-- **Frontend**: HTML5, CSS3, Vanilla JavaScript
-- **APIs**: Spoonacular Recipe API, JokeAPI (Direct browser calls)
-- **Styling**: Custom CSS with modern design principles
-- **Icons**: Font Awesome
-- **Fonts**: Google Fonts (Inter)
-- **Deployment**: Netlify (Static hosting)
-
-## 📦 Installation
-
-### For Local Development:
+## Local Development
 
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd recipe-finder
+   cd wdd330-final-project-1
    ```
 
 2. **Install dependencies**
@@ -50,137 +32,86 @@ A modern, responsive web application for discovering and exploring delicious rec
    npm install
    ```
 
-3. **Start the development server**
-   ```bash
-   npm run dev
+3. **Set up environment variables**
+   Create a `.env` file in the root directory:
+   ```env
+   SPOONACULAR_API_KEY=your_spoonacular_api_key_here
+   PORT=3000
+   NODE_ENV=development
    ```
 
-4. **Open your browser**
+4. **Start the development server**
+   ```bash
+   npm start
+   ```
+
+5. **Open your browser**
    Navigate to `http://localhost:3000`
 
-### For Netlify Deployment:
+## Netlify Deployment
 
-1. **Fork or clone the repository**
-2. **Connect to Netlify** from your GitHub repository
-3. **Build settings:**
-   - Build command: `echo 'Static site - no build required'`
-   - Publish directory: `public`
-4. **Deploy!** The app will work immediately
+This application is configured to deploy on Netlify using Netlify Functions for the backend API calls.
 
-**Note:** The app now makes direct API calls to Spoonacular from the browser, so no server-side configuration is needed.
+### Environment Variables Setup
 
-## 🎨 Project Structure
+1. **Get a Spoonacular API Key**
+   - Visit [Spoonacular Food API](https://spoonacular.com/food-api)
+   - Sign up for a free account
+   - Copy your API key
+
+2. **Set Environment Variables in Netlify**
+   - Go to your Netlify dashboard
+   - Navigate to your site settings
+   - Go to **Environment variables**
+   - Add the following variable:
+     - **Key**: `SPOONACULAR_API_KEY`
+     - **Value**: Your Spoonacular API key
+
+3. **Deploy**
+   - Push your changes to your Git repository
+   - Netlify will automatically deploy using the configuration in `netlify.toml`
+
+### Netlify Functions
+
+The application uses Netlify Functions to handle API calls securely:
+- `/api/recipes` - Search and fetch recipes
+- `/api/recipes/:id` - Get individual recipe details
+- `/api/cuisines` - Get available cuisines
+- `/api/joke` - Get random food jokes
+
+## API Configuration
+
+The application uses the following APIs:
+- **Spoonacular Food API**: For recipe data
+- **JokeAPI**: For food-related jokes
+
+## Project Structure
 
 ```
-recipe-finder/
-├── public/
-│   ├── index.html          # Main HTML file
-│   ├── styles.css          # CSS styles
-│   └── script.js           # JavaScript functionality
-├── server.js               # Express server
-├── config.js               # Configuration and environment variables
-├── env.example             # Example environment file
-├── package.json            # Dependencies and scripts
-└── README.md              # Project documentation
+wdd330-final-project-1/
+├── public/                 # Static files
+│   ├── index.html         # Main HTML file
+│   ├── styles.css         # CSS styles
+│   └── script.js          # Frontend JavaScript
+├── netlify/
+│   └── functions/         # Netlify Functions
+│       ├── recipes.js     # Recipe search API
+│       ├── recipe-details.js # Individual recipe API
+│       ├── cuisines.js    # Cuisine list API
+│       └── joke.js        # Joke API
+├── server.js              # Express server (for local development)
+├── config.js              # Configuration file
+├── netlify.toml           # Netlify configuration
+└── package.json           # Dependencies
 ```
 
-## 🔧 Available Scripts
+## Security
 
-- `npm start` - Start the production server
-- `npm run dev` - Start the development server with nodemon
-- `npm test` - Run tests (placeholder)
+- API keys are stored securely in environment variables
+- No sensitive data is exposed in client-side code
+- All external API calls go through secure backend functions
 
-## ⚙️ Configuration
-
-The application uses a centralized configuration system:
-
-- **`config.js`** - Main configuration file that loads environment variables
-- **`env.example`** - Example environment file (copy to `.env`)
-- **`.env`** - Your local environment variables (not committed to git)
-
-### Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `SPOONACULAR_API_KEY` | Your Spoonacular API key | Demo key (limited) |
-| `JOKE_API_URL` | JokeAPI endpoint | `https://v2.jokeapi.dev/joke/Food?safe-mode` |
-| `PORT` | Server port | `3000` |
-| `NODE_ENV` | Environment mode | `development` |
-| `CACHE_DURATION` | Cache duration in ms | `1800000` (30 min) |
-
-## 🌐 API Endpoints
-
-- `GET /api/recipes` - Get all recipes (supports query parameters)
-- `GET /api/recipes/:id` - Get specific recipe by ID
-- `GET /api/cuisines` - Get all available cuisines
-- `GET /api/joke` - Get a random food joke
-
-### External APIs Used
-
-- **Spoonacular Recipe API**: Provides recipe data, search, and filtering
-- **JokeAPI**: Provides random food jokes for entertainment
-
-### Query Parameters
-
-- `search` - Search recipes by name or ingredients
-- `cuisine` - Filter by cuisine type
-- `difficulty` - Filter by difficulty level
-- `offset` - Pagination offset (number of recipes to skip)
-
-## 📱 Responsive Design
-
-The application is fully responsive and optimized for:
-- Desktop (1200px+)
-- Tablet (768px - 1199px)
-- Mobile (320px - 767px)
-
-## 🎨 Design Features
-
-- **Modern Gradient Backgrounds**: Beautiful purple gradient theme
-- **Card-based Layout**: Clean recipe cards with hover effects
-- **Smooth Animations**: CSS transitions and JavaScript animations
-- **Modal Dialogs**: Detailed recipe views in popup modals
-- **Loading States**: Spinner animations for better UX
-- **Error Handling**: User-friendly error messages
-
-## 🔍 Search & Filter Features
-
-- **Real-time Search**: Results update as you type
-- **Ingredient Search**: Find recipes containing specific ingredients
-- **Cuisine Filtering**: Filter by world cuisines
-- **Difficulty Filtering**: Filter by cooking skill level
-- **Combined Filters**: Use multiple filters simultaneously
-- **Pagination**: Load more recipes with "Load More" button
-- **Food Jokes**: Get random food jokes when searching or on demand
-
-## 📊 Sample Data
-
-The application includes sample recipes for:
-- Italian cuisine (Spaghetti Carbonara, Margherita Pizza)
-- Asian cuisine (Chicken Stir Fry)
-- American cuisine (Caesar Salad, Chocolate Chip Cookies)
-- Mexican cuisine (Beef Tacos)
-
-## 🚀 Deployment
-
-The application can be deployed to various platforms:
-
-### Heroku
-1. Create a Heroku app
-2. Set the `PORT` environment variable
-3. Deploy using Git
-
-### Vercel
-1. Connect your GitHub repository
-2. Vercel will automatically detect the Node.js app
-3. Deploy with one click
-
-### Netlify
-1. Build the project
-2. Upload the `public` folder
-3. Configure redirects for the API
-
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch
@@ -188,16 +119,6 @@ The application can be deployed to various platforms:
 4. Test thoroughly
 5. Submit a pull request
 
-## 📄 License
+## License
 
-This project is licensed under the MIT License.
-
-## 🙏 Acknowledgments
-
-- Recipe images from Unsplash
-- Icons from Font Awesome
-- Fonts from Google Fonts
-
----
-
-**Made with ❤️ for food lovers everywhere** 
+This project is licensed under the MIT License. 
