@@ -20,16 +20,135 @@ let allRecipes = [];
 let currentOffset = 0;
 let hasMoreRecipes = false;
 
+// Local Storage Keys
+const STORAGE_KEYS = {
+    USER_PREFERENCES: 'recipeFinder_preferences',
+    SEARCH_HISTORY: 'recipeFinder_searchHistory',
+    THEME_PREFERENCE: 'recipeFinder_theme',
+    LAST_SECTION: 'recipeFinder_lastSection',
+    JOKE_HISTORY: 'recipeFinder_jokeHistory'
+};
+
+// Local Storage Functions
+function saveToLocalStorage(key, data) {
+    try {
+        localStorage.setItem(key, JSON.stringify(data));
+    } catch (error) {
+        console.warn('Failed to save to localStorage:', error);
+    }
+}
+
+function getFromLocalStorage(key, defaultValue = null) {
+    try {
+        const item = localStorage.getItem(key);
+        return item ? JSON.parse(item) : defaultValue;
+    } catch (error) {
+        console.warn('Failed to read from localStorage:', error);
+        return defaultValue;
+    }
+}
+
+// User Preferences Management
+function saveUserPreferences() {
+    const preferences = {
+        cuisineFilter: cuisineFilter.value,
+        difficultyFilter: difficultyFilter.value,
+        searchInput: searchInput.value,
+        timestamp: Date.now()
+    };
+    saveToLocalStorage(STORAGE_KEYS.USER_PREFERENCES, preferences);
+}
+
+function loadUserPreferences() {
+    const preferences = getFromLocalStorage(STORAGE_KEYS.USER_PREFERENCES);
+    if (preferences) {
+        // Only restore if preferences are less than 24 hours old
+        if (Date.now() - preferences.timestamp < 24 * 60 * 60 * 1000) {
+            if (preferences.cuisineFilter) cuisineFilter.value = preferences.cuisineFilter;
+            if (preferences.difficultyFilter) difficultyFilter.value = preferences.difficultyFilter;
+            if (preferences.searchInput) searchInput.value = preferences.searchInput;
+        }
+    }
+}
+
+// Search History Management
+function addToSearchHistory(searchTerm) {
+    if (!searchTerm.trim()) return;
+    
+    const history = getFromLocalStorage(STORAGE_KEYS.SEARCH_HISTORY, []);
+    // Remove if already exists
+    const filteredHistory = history.filter(item => item !== searchTerm);
+    // Add to beginning and keep only last 5 searches
+    const newHistory = [searchTerm, ...filteredHistory].slice(0, 5);
+    saveToLocalStorage(STORAGE_KEYS.SEARCH_HISTORY, newHistory);
+}
+
+function getSearchHistory() {
+    return getFromLocalStorage(STORAGE_KEYS.SEARCH_HISTORY, []);
+}
+
+// Theme Management
+function saveThemePreference(theme) {
+    saveToLocalStorage(STORAGE_KEYS.THEME_PREFERENCE, theme);
+}
+
+function loadThemePreference() {
+    const theme = getFromLocalStorage(STORAGE_KEYS.THEME_PREFERENCE, 'light');
+    applyTheme(theme);
+}
+
+function applyTheme(theme) {
+    document.body.className = theme === 'dark' ? 'dark-theme' : '';
+    // Save theme toggle button state
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+        themeToggle.innerHTML = theme === 'dark' ? 
+            '<i class="fas fa-sun"></i>' : 
+            '<i class="fas fa-moon"></i>';
+    }
+}
+
+// Last Section Management
+function saveLastSection(sectionId) {
+    saveToLocalStorage(STORAGE_KEYS.LAST_SECTION, sectionId);
+}
+
+function loadLastSection() {
+    const lastSection = getFromLocalStorage(STORAGE_KEYS.LAST_SECTION, 'home');
+    // Smooth scroll to last viewed section
+    const targetSection = document.getElementById(lastSection);
+    if (targetSection) {
+        targetSection.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+// Joke History Management
+function addToJokeHistory(joke) {
+    const history = getFromLocalStorage(STORAGE_KEYS.JOKE_HISTORY, []);
+    // Remove if already exists
+    const filteredHistory = history.filter(item => item !== joke);
+    // Add to beginning and keep only last 3 jokes
+    const newHistory = [joke, ...filteredHistory].slice(0, 3);
+    saveToLocalStorage(STORAGE_KEYS.JOKE_HISTORY, newHistory);
+}
+
+function getJokeHistory() {
+    return getFromLocalStorage(STORAGE_KEYS.JOKE_HISTORY, []);
+}
+
 // API Configuration - Using backend endpoints instead of direct API calls
 const API_BASE_URL = '/api';
 const JOKE_API_URL = `${API_BASE_URL}/joke`;
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
+    loadUserPreferences();
+    loadThemePreference();
     loadRecipes();
     loadCuisines();
     setupEventListeners();
     setupNavigation();
+    setupThemeToggle();
 });
 
 // Event Listeners
@@ -43,8 +162,14 @@ function setupEventListeners() {
     });
 
     // Filter functionality
-    cuisineFilter.addEventListener('change', performSearch);
-    difficultyFilter.addEventListener('change', performSearch);
+    cuisineFilter.addEventListener('change', function() {
+        saveUserPreferences();
+        performSearch();
+    });
+    difficultyFilter.addEventListener('change', function() {
+        saveUserPreferences();
+        performSearch();
+    });
 
     // Modal functionality
     closeModal.addEventListener('click', closeRecipeModal);
@@ -88,6 +213,7 @@ function setupNavigation() {
                 targetSection.scrollIntoView({
                     behavior: 'smooth'
                 });
+                saveLastSection(targetId); // Save the last section
             }
         });
     });
@@ -176,18 +302,28 @@ async function getRandomJoke() {
         const response = await fetch(JOKE_API_URL);
         const jokeData = await response.json();
         
+        let jokeText = '';
         if (jokeData.error) {
-            jokeText.textContent = jokeData.message || 'Failed to load joke. Try again!';
+            jokeText = jokeData.message || 'Failed to load joke. Try again!';
         } else if (jokeData.type === 'single') {
-            jokeText.textContent = jokeData.joke;
+            jokeText = jokeData.joke;
         } else if (jokeData.type === 'twopart') {
-            jokeText.textContent = `${jokeData.setup}\n\n${jokeData.delivery}`;
+            jokeText = `${jokeData.setup}\n\n${jokeData.delivery}`;
         } else {
-            jokeText.textContent = 'Why did the chef go to the doctor? Because he was feeling a little under the weather! 😄';
+            jokeText = 'Why did the chef go to the doctor? Because he was feeling a little under the weather! 😄';
         }
+        
+        // Save joke to history
+        addToJokeHistory(jokeText);
+        
+        // Update the joke text element
+        document.getElementById('jokeText').textContent = jokeText;
+        
     } catch (error) {
         console.error('Error fetching joke:', error);
-        jokeText.textContent = 'Why did the chef go to the doctor? Because he was feeling a little under the weather! 😄';
+        const fallbackJoke = 'Why did the chef go to the doctor? Because he was feeling a little under the weather! 😄';
+        document.getElementById('jokeText').textContent = fallbackJoke;
+        addToJokeHistory(fallbackJoke);
     } finally {
         // Remove loading state
         jokeSection.classList.remove('joke-loading');
@@ -255,6 +391,11 @@ async function performSearch() {
     const searchTerm = searchInput.value.trim();
     const selectedCuisine = cuisineFilter.value;
     const selectedDifficulty = difficultyFilter.value;
+
+    // Save search term to history
+    if (searchTerm) {
+        addToSearchHistory(searchTerm);
+    }
 
     // Reset pagination for new search
     currentOffset = 0;
@@ -498,3 +639,24 @@ displayRecipes = function(recipes) {
     originalDisplayRecipes(recipes);
     setTimeout(addScrollAnimations, 100);
 }; 
+
+// Theme Toggle Setup
+function setupThemeToggle() {
+    // Create theme toggle button if it doesn't exist
+    if (!document.getElementById('themeToggle')) {
+        const headerContent = document.querySelector('.header-content');
+        const themeToggle = document.createElement('button');
+        themeToggle.id = 'themeToggle';
+        themeToggle.className = 'theme-toggle';
+        themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+        themeToggle.title = 'Toggle theme';
+        
+        themeToggle.addEventListener('click', function() {
+            const currentTheme = document.body.className.includes('dark-theme') ? 'light' : 'dark';
+            saveThemePreference(currentTheme);
+            applyTheme(currentTheme);
+        });
+        
+        headerContent.appendChild(themeToggle);
+    }
+} 

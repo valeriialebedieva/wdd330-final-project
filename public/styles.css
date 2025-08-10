@@ -68,6 +68,71 @@ body {
     background-color: rgba(255,255,255,0.1);
 }
 
+/* Theme Toggle Button */
+.theme-toggle {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 0.5rem;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+.theme-toggle i {
+    font-size: 1.1rem;
+}
+
+/* Dark Theme Styles */
+.dark-theme {
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+}
+
+.dark-theme .header {
+    background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+}
+
+.dark-theme .hero {
+    background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+}
+
+.dark-theme .recipe-card {
+    background-color: #2d3748;
+    border-color: #4a5568;
+}
+
+.dark-theme .recipe-card:hover {
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+}
+
+.dark-theme .filter-select {
+    background-color: #2d3748;
+    color: #e0e0e0;
+    border-color: #4a5568;
+}
+
+.dark-theme .search-input {
+    background-color: #2d3748;
+    color: #e0e0e0;
+    border-color: #4a5568;
+}
+
+.dark-theme .modal-content {
+    background-color: #2d3748;
+    color: #e0e0e0;
+}
+
 /* Hero Section */
 .hero {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
